@@ -14,17 +14,8 @@ resource "citrixadc_server" "lb_server" {
   ipaddress = element(var.adc-lb["lb_srv_ip"],count.index)
 }
 
-#####
-# Add LB Service Groups
-#####
-resource "citrixadc_servicegroup" "lb_servicegroup" {
-  count             = length(var.adc-lb.lb_name)
-  servicegroupname  = "lb_sg_${element(var.adc-lb["lb_name"],count.index)}_${element(var.adc-lb["lb_type"],count.index)}_${element(var.adc-lb["lb_port"],count.index)}"
-  servicetype       = element(var.adc-lb["lb_type"],count.index)
-
-  depends_on = [
-    citrixadc_server.lb_server
-  ]
+output "instance_ip_addr" {
+  value = var.adc-lb.lb_name
 }
 
 #####
@@ -33,8 +24,4 @@ resource "citrixadc_servicegroup" "lb_servicegroup" {
 resource "citrixadc_nsconfig_save" "lb_save" {
   all        = true
   timestamp  = timestamp()
-
-  depends_on = [
-      citrixadc_servicegroup.lb_servicegroup
-  ]
 }
