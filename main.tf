@@ -2,7 +2,6 @@ locals {
   httpprofilename = "http_prof_${var.adc-base.environmentname}"
   tcpprofilename  = "tcp_prof_${var.adc-base.environmentname}"
   sslprofilename  = "ssl_prof_${var.adc-base.environmentname}_fe_TLS1213"
-
 }
 
 #####
@@ -49,7 +48,7 @@ resource "citrixadc_lbvserver" "vserver" {
   name            = "vs_${element(var.adc-lb["name"],count.index)}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
 
   servicetype     = element(var.adc-lb["type"],count.index)
-  ipv46           = var.adc-lb-generic.lb-ip
+  ipv46           = element(var.adc-lb["lb-type"],count.index) == "direct" ? "9.9.9.9" : "0.0.0.0"
   port            = var.adc-lb-generic.lb-port
   lbmethod        = var.adc-lb-generic.lbmethod
   persistencetype = var.adc-lb-generic.persistencetype
