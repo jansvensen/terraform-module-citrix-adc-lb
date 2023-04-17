@@ -35,6 +35,6 @@ resource "citrixadc_nsconfig_save" "lb_save" {
   timestamp  = timestamp()
 
   depends_on = [
-      citrixadc_server.lb_servicegroup
+      citrixadc_servicegroup.lb_servicegroup
   ]
 }
