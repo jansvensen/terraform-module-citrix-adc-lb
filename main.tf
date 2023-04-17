@@ -49,11 +49,11 @@ resource "citrixadc_lbvserver" "lb_vserver" {
   name            = "lb_vs_${element(var.adc-lb["lb_name"],count.index)}_${element(var.adc-lb["lb_type"],count.index)}_${element(var.adc-lb["lb_port"],count.index)}"
 
   servicetype     = element(var.adc-lb["lb_type"],count.index)
-  ipv46           = var.adc-lb-generic.lb-ip
-  port            = var.adc-lb-generic.lb-port
-  lbmethod        = var.adc-lb-generic.lbmethod
-  persistencetype = var.adc-lb-generic.persistencetype
-  timeout         = var.adc-lb-generic.timeout
+  ipv46           = var.adc-lb.lb_generic_lb-ip
+  port            = var.adc-lb.lb_generic_lb-port
+  lbmethod        = var.adc-lb.lb_generic_lbmethod
+  persistencetype = var.adc-lb.lb_generic_persistencetype
+  timeout         = var.adc-lb.lb_generic_timeout
   sslprofile      = element(var.adc-lb["lb_type"],count.index) == "SSL" ? local.sslprofilename : null
   httpprofilename = element(var.adc-lb["lb_type"],count.index) == "DNS" || element(var.adc-lb["lb_type"],count.index) == "TCP" ? null : local.httpprofilename
   tcpprofilename  = element(var.adc-lb["lb_type"],count.index) == "DNS" ? null : local.tcpprofilename
