@@ -9,7 +9,7 @@ locals {
 #####
 resource "citrixadc_server" "server" {
   count     = length(var.adc-lb-srv.name)
-  name      = "srv_${element(var.adc-lb-srv["name"],count.index)}"
+  name      = "lb_srv_${element(var.adc-lb-srv["name"],count.index)}"
   ipaddress = element(var.adc-lb-srv["ip"],count.index)
 }
 
@@ -18,7 +18,7 @@ resource "citrixadc_server" "server" {
 #####
 resource "citrixadc_servicegroup" "servicegroup" {
   count             = length(var.adc-lb.name)
-  servicegroupname  = "sg_${element(var.adc-lb["name"],count.index)}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
+  servicegroupname  = "lb_sg_${element(var.adc-lb["name"],count.index)}${var.adc-lb.fqdn-int}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
   servicetype       = element(var.adc-lb["type"],count.index)
 
   depends_on = [
@@ -29,10 +29,10 @@ resource "citrixadc_servicegroup" "servicegroup" {
 #####
 # Bind LB Server to Service Groups
 #####
-resource "citrixadc_servicegroup_servicegroupmember_binding" "sg_server_binding" {
+resource "citrixadc_servicegroup_servicegroupmember_binding" "lb_sg_server_binding" {
   count             = length(var.adc-lb.name)
-  servicegroupname  = "sg_${element(var.adc-lb["name"],count.index)}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
-  servername        = "srv_${element(var.adc-lb-srv["name"],count.index)}"
+  servicegroupname  = "lb_sg_${element(var.adc-lb["name"],count.index)}${var.adc-lb.fqdn-int}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
+  servername        = "lb_srv_${element(var.adc-lb-srv["name"],count.index)}"
   port              = element(var.adc-lb["port"],count.index)
 
   depends_on = [
@@ -45,7 +45,7 @@ resource "citrixadc_servicegroup_servicegroupmember_binding" "sg_server_binding"
 #####
 resource "citrixadc_lbvserver" "vserver" {
   count           = length(var.adc-lb.name)
-  name            = "vs_${element(var.adc-lb["name"],count.index)}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
+  name            = "lb_vs_${element(var.adc-lb["name"],count.index)}${var.adc-lb.fqdn-int}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
 
   servicetype     = element(var.adc-lb["type"],count.index)
   ipv46           = element(var.adc-lb["lb-type"],count.index) == "direct" ? "9.9.9.9" : "0.0.0.0"
@@ -67,8 +67,8 @@ resource "citrixadc_lbvserver" "vserver" {
 #####
 resource "citrixadc_lbvserver_servicegroup_binding" "vserver_sg_binding" {
   count             = length(var.adc-lb.name)
-  name              = "vs_${element(var.adc-lb["name"],count.index)}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
-  servicegroupname  = "sg_${element(var.adc-lb["name"],count.index)}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
+  name              = "lb_vs_${element(var.adc-lb["name"],count.index)}${var.adc-lb.fqdn-int}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
+  servicegroupname  = "lb_sg_${element(var.adc-lb["name"],count.index)}${var.adc-lb.fqdn-int}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
 
   depends_on = [
     citrixadc_lbvserver.vserver
