@@ -14,10 +14,6 @@ resource "citrixadc_server" "lb_server" {
   ipaddress = element(var.adc-lb["lb_srv_ip"],count.index)
 }
 
-output "instance_ip_addr" {
-  value = var.adc-lb.lb_name
-}
-
 #####
 # Save config
 #####
