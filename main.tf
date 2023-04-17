@@ -49,7 +49,7 @@ resource "citrixadc_lbvserver" "vserver" {
 
   servicetype     = element(var.adc-lb["type"],count.index)
   ipv46           = element(var.adc-lb["lb-type"],count.index) == "direct" ? "9.9.9.9" : "0.0.0.0"
-  port            = var.adc-lb-generic.lb-port
+  port            = element(var.adc-lb["lb-type"],count.index) == "direct" ? element(var.adc-lb["port"],count.index) : "0"
   lbmethod        = var.adc-lb-generic.lbmethod
   persistencetype = var.adc-lb-generic.persistencetype
   timeout         = var.adc-lb-generic.timeout
