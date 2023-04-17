@@ -7,4 +7,6 @@ variable adc-base {}
 #####
 # ADC Loadbalancing Server
 #####
-variable "adc-lb" {}
+  adc-lb = {}
+  adc-lb-srv = {}
+  adc-lb-generic = {}
