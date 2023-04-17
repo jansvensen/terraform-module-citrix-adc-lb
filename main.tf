@@ -7,7 +7,7 @@ locals {
 #####
 # Add LB Server
 #####
-resource "citrixadc_server" "server" {
+resource "citrixadc_server" "lb_server" {
   count     = length(var.adc-lb-srv.name)
   name      = "lb_srv_${element(var.adc-lb-srv["name"],count.index)}"
   ipaddress = element(var.adc-lb-srv["ip"],count.index)
@@ -16,13 +16,13 @@ resource "citrixadc_server" "server" {
 #####
 # Add LB Service Groups
 #####
-resource "citrixadc_servicegroup" "servicegroup" {
+resource "citrixadc_servicegroup" "lb_servicegroup" {
   count             = length(var.adc-lb.name)
   servicegroupname  = "lb_sg_${element(var.adc-lb["name"],count.index)}${var.adc-lb.fqdn-int}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
   servicetype       = element(var.adc-lb["type"],count.index)
 
   depends_on = [
-    citrixadc_server.server
+    citrixadc_server.lb_server
   ]
 }
 
@@ -36,14 +36,14 @@ resource "citrixadc_servicegroup_servicegroupmember_binding" "lb_sg_server_bindi
   port              = element(var.adc-lb["port"],count.index)
 
   depends_on = [
-    citrixadc_servicegroup.servicegroup
+    citrixadc_servicegroup.lb_servicegroup
   ]
 }
 
 #####
 # Add and configure LB vServer
 #####
-resource "citrixadc_lbvserver" "vserver" {
+resource "citrixadc_lbvserver" "lb_vserver" {
   count           = length(var.adc-lb.name)
   name            = "lb_vs_${element(var.adc-lb["name"],count.index)}${var.adc-lb.fqdn-int}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
 
@@ -58,20 +58,20 @@ resource "citrixadc_lbvserver" "vserver" {
   tcpprofilename  = element(var.adc-lb["type"],count.index) == "DNS" ? null : local.tcpprofilename
 
   depends_on = [
-    citrixadc_servicegroup_servicegroupmember_binding.sg_server_binding
+    citrixadc_servicegroup_servicegroupmember_binding.lb_sg_server_binding
   ]
 }
 
 #####
 # Bind LB Service Groups to LB vServers
 #####
-resource "citrixadc_lbvserver_servicegroup_binding" "vserver_sg_binding" {
+resource "citrixadc_lbvserver_servicegroup_binding" "lb_vserver_sg_binding" {
   count             = length(var.adc-lb.name)
   name              = "lb_vs_${element(var.adc-lb["name"],count.index)}${var.adc-lb.fqdn-int}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
   servicegroupname  = "lb_sg_${element(var.adc-lb["name"],count.index)}${var.adc-lb.fqdn-int}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
 
   depends_on = [
-    citrixadc_lbvserver.vserver
+    citrixadc_lbvserver.lb_vserver
   ]
 }
 
@@ -83,6 +83,6 @@ resource "citrixadc_nsconfig_save" "save" {
   timestamp  = timestamp()
 
   depends_on = [
-      citrixadc_lbvserver_servicegroup_binding.vserver_sg_binding
+      citrixadc_lbvserver_servicegroup_binding.lb_vserver_sg_binding
   ]
 }
