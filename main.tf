@@ -15,6 +15,19 @@ resource "citrixadc_server" "lb_server" {
 }
 
 #####
+# Add LB Service Groups
+#####
+resource "citrixadc_servicegroup" "lb_servicegroup" {
+  count             = length(var.adc-lb.lb_name)
+  servicegroupname  = "lb_sg_${element(var.adc-lb["lb_name"],count.index)}_${element(var.adc-lb["lb_type"],count.index)}_${element(var.adc-lb["lb_port"],count.index)}"
+  servicetype       = element(var.adc-lb["lb_type"],count.index)
+
+  depends_on = [
+    citrixadc_server.lb_server
+  ]
+}
+
+#####
 # Save config
 #####
 resource "citrixadc_nsconfig_save" "lb_save" {
@@ -22,6 +35,6 @@ resource "citrixadc_nsconfig_save" "lb_save" {
   timestamp  = timestamp()
 
   depends_on = [
-      citrixadc_server.lb_server
+      citrixadc_server.lb_servicegroup
   ]
 }
