@@ -32,7 +32,7 @@ resource "citrixadc_servicegroup" "lb_servicegroup" {
 resource "citrixadc_servicegroup_servicegroupmember_binding" "lb_sg_server_binding" {
   count             = length(var.adc-lb.name)
   servicegroupname  = "lb_sg_${element(var.adc-lb["name"],count.index)}.${var.adc-lb.fqdn_int}_${element(var.adc-lb["type"],count.index)}_${element(var.adc-lb["port"],count.index)}"
-  servername        = "lb_srv_${element(var.adc-lb-srv["name"],count.index)}"
+  servername        = "lb_srv_${element(var.adc-lb["backend-server"],count.index)}"
   port              = element(var.adc-lb["port"],count.index)
 
   depends_on = [
